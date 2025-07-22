@@ -105,6 +105,79 @@ def processa_jogos(jogos: list[str]) -> list[Jogo]:
         jogos_p.append(Jogo(anf=nome_anf, gols_anf=gols_anf, visit=nome_visit, gols_visit=gols_visit))
     return jogos_p
 
+def processa_clubes(jogos: list[Jogo]) -> list[Clube]:
+    '''
+    Processa uma lista de jogos e retorna uma lista de clubes.
+    Cada clube é representado por um objeto da classe Clube.
+    A lista de clubes é formada a partir dos jogos processados.
+    Exemplo:
+    >>> jogos = processa_jogos(['Sao-Paulo 1 Atletico-MG 2', 'Flamengo 2 Palmeiras 1'])
+    >>> clubes = processa_clubes(jogos)
+    >>> clubes[0].nome
+    'Sao-Paulo'
+    >>> clubes[0].jogos_totais
+    1
+    >>> clubes[0].wins
+    0
+    >>> clubes[0].draws
+    0
+    >>> clubes[0].gols_totais
+    1
+    >>> clubes[0].jogos_anf
+    1
+    >>> clubes[0].wins_anf
+    0
+    >>> clubes[0].gols_anf
+    1
+    >>> clubes[0].gols_tomados
+    2
+    >>> clubes[0].saldo
+    -1
+    '''
+    
+    clubes = []
+    
+    for jogo in jogos:
+        idx_anf = verifica_nome(jogo.anf, clubes)
+        idx_visit = verifica_nome(jogo.visit, clubes)
+        # se o clube anfitriao não estiver na lista
+        if idx_anf == -1:
+            clube_anf = Clube(nome=jogo.anf,
+                              jogos_totais = 1,
+                              wins = 1 if jogo.gols.anf > jogo.gols.visit else 0,
+                              draws = 1 if jogo.gols_anf == jogo.gols_visit else 0,
+                              gols_totais = jogo.gols_anf,
+                              jogos_anf = 1,
+                              wins_anf = 1 if jogo.gols_anf > jogo.gols_visit else 0,
+                              gols_anf = jogo.gols_anf, gols_tomados = jogo.gols_visit,
+                              saldo = clube_anf.gols_totais - clube_anf.gols_tomados)
+            clubes.append(clube_anf)
+        else: # O clube anfitrião está na lista
+            clube_anf = clubes[idx_anf]
+            clube_anf.jogos_totais += 1
+            clube_anf.gols_totais += jogo.gols_anf
+            clube_anf.jogos_anf += 1
+            clube_anf.wins_anf += (jogo.gols_anf > jogo.gols_visit)
+            clube_anf.gols_tomados += jogo.gols_visit
+            clube_anf.saldo = (clube_anf.gols_totais - clube_anf.gols_tomados)
+        
+        if idx_visit == -1:
+            clube_visit = Clube(nome = jogo.anf,
+                                jogos_totais = 1,
+                                wins = 1 if jogo.gols_visit > jogo.gols_anf else 0,
+                                draws = 1 if jogo.gols_anf == jogo.gols_visit else 0,
+                                gols_totais = jogo.gols.visit,
+                                jogos_anf = 0,
+                                wins_anf = 0,
+                                gols_anf = 0,
+                                saldo = clube_visit.gols_totais - clube_visit.gols_tomados)
+        
+        else:
+            clube_visit = clubes[idx_visit]
+            clube_visit.jogos_totais += 1
+            clube_visit.gols_totais += jogo.gols_visit
+            clube_visit.gols_tomados += jogo.gols_anf
+            clube_visit.saldo = clube_visit.gols_totais - clube_visit.gols_tomados
 
 def le_arquivo(nome: str) -> list[str]:
     '''
