@@ -161,6 +161,7 @@ def processa_clubes(jogos: list[Jogo]) -> list[Clube]:
             clube_anf.gols_tomados += jogo.gols_visit
             clube_anf.saldo = (clube_anf.gols_totais - clube_anf.gols_tomados)
         
+        # se o clube visitante não estiver na lista
         if idx_visit == -1:
             clube_visit = Clube(nome = jogo.anf,
                                 jogos_totais = 1,
@@ -172,7 +173,7 @@ def processa_clubes(jogos: list[Jogo]) -> list[Clube]:
                                 gols_anf = 0,
                                 saldo = clube_visit.gols_totais - clube_visit.gols_tomados)
         
-        else:
+        else: # O clube visitante está na lista
             clube_visit = clubes[idx_visit]
             clube_visit.jogos_totais += 1
             clube_visit.gols_totais += jogo.gols_visit
