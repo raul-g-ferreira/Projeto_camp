@@ -1,0 +1,36 @@
+funções desejadas
+
+função que vai processar a lista de str e 
+
+
+tipo composto
+    jogo ou time?
+        se for jogo:
+            Jogo1
+                anfi = 'Time anfitrião'
+                visit = 'Time visitante'
+                gols_a = gols do anfitrião
+                gols_v = gols do visitante
+            
+            e depois processar essa lista com  outra função que criaria uma lista de times com seus res
+
+## função que verifica se determinado time está na lista e retorna o índice dele
+
+
+
+
+
+Feitos:
+Tipos compostos:
+    Clube
+    Jogo
+
+Funções:
+    verifica_nome()
+    acha_espaço()
+    processa_jogos()
+
+
+faze func pontuacao 
+    criar campo no tipo Clube e fixar em 0
+        dps passar a func pra calcular a pontuacao
