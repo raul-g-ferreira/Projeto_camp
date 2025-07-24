@@ -191,6 +191,102 @@ def processa_clubes(jogos: list[Jogo]) -> list[Clube]:
             clube_visit.wins += (jogo.gols_visit > jogo.gols_anf)
             clube_visit.draws += (jogo.gols_visit == jogo.gols_anf)
     return clubes
+
+def pontuacao_clubes(clubes: list[Clube]):
+    '''
+    Atribui a pontuação aos clubes de *clubes*.
+    A pontuação é calculada da seguinte forma:
+    - Vitória: +3 pontos
+    - Empate: +1 ponto
+    - Derrota: 0 pontos
+    Sendo armazenada no campo pontuacao de cada clube.
+    Exemplo:
+    >>> clubes = [Clube('Sao-Paulo', 1, 1, 0, 2, 1, 1, 2, 1, 0), Clube('Flamengo', 1, 0, 1, 1, 0, 0, 0, 1, 0)]
+    >>> pontuacao_clubes(clubes)
+    >>> clubes[0].pontuacao
+    3
+    >>> clubes[1].pontuacao
+    1
+    '''
+    for clube in clubes:
+        clube.pontuacao += clube.wins * 3
+        clube.pontuacao += clube.draws
+    # sem return, pois altera o próprio parâmetro!
+
+def em_ordem_alfabetica(clubex: Clube, clubey: Clube) -> bool:
+    '''
+    Compara dois clubes e retorna True se o nome do clube *clubex* for
+    lexicograficamente menor que o nome do clube *clubey*.
+    Exemplo:
+    >>> Sao_Paulo = Clube('Sao-Paulo', 0, 0, 0, 0, 0, 0, 0, 0, 0)
+    >>> Flamengo = Clube('Flamengo', 0, 0, 0, 0, 0, 0, 0, 0, 0)
+    >>> em_ordem_alfabetica(Sao_Paulo, Flamengo)
+    True
+    >>> em_ordem_alfabetica(Flamengo, Sao_Paulo)
+    False
+    '''
+    return clubex.nome < clubey.nome
+def ordena_clubes(clubes: list[Clube]):
+    '''
+    Ordena *clubes* de acordo com os seguints critérios:
+    1. Pontuação
+    2. Número de vitórias
+    3. Saldo de gols
+    4. Ordem alfabética do nome do clube
+    Retorna a lista ordenada.
+    Exemplo:
+    >>> clubes = [Clube('Sao-Paulo', 1, 1, 0, 2, 1, 1, 2, 1, 0), Clube('Flamengo', 1, 0, 1, 1, 0, 0, 0, 1, 0)]
+    >>> classificacao(clubes)
+    '''
+    for i in range(len(clubes) - 1):
+        if clubes[i].pontuacao < clubes[i + 1].pontuacao:
+            aux = clubes[i]
+            clubes[i] = clubes[i + 1]
+            clubes[i + 1] = aux
+        elif clubes[i].pontuacao == clubes[i+1].pontuacao:
+            if clubes[i].wins < clubes[i + 1].wins:
+                aux = clubes[i]
+                clubes[i] = clubes[i + 1]
+                clubes[i + 1] = aux
+            elif clubes[i].wins == clubes[i + 1].wins:
+                if clubes[i].saldo < clubes[i + 1].saldo:
+                    aux = clubes[i]
+                    clubes[i] = clubes[i + 1]
+                    clubes[i + 1] = aux
+                elif clubes[i].saldo == clubes[i + 1].saldo:
+                    # Fazer a troca por ordem alfabética
+                    if not em_ordem_alfabetica(clubes[i], clubes[i + 1]):
+                        aux = clubes[i]
+                        clubes[i] = clubes[i + 1]
+                        clubes[i + 1] = aux
+    
+def mostra_classificacao(clubes: list[Clube]):
+    '''
+    Exibe a classificação dos clubes.
+    A classificação é exibida no formato:
+    TIME     P  V  S
+
+    Onde TIME é o nome do clube, P é a pontuação, V é o número de vitórias e S é o saldo de gols.
+    Os valores de P, V e S devem ser alinhados verticalmente com os valores dos outros clubes.
+    Exemplo:
+    >>> clubes = [Clube('Sao-Paulo', 1, 1, 0, 2, 1, 1, 2, 1, 0), Clube('Flamengo', 1, 0, 1, 1, 0, 0, 0, 1, 0), Clube('Palmeiras', 1, 0, 1, 1, 0, 0, 0, 1, 0)]
+    >>> mostra_classificacao(clubes)
+    TIME      P V S
+    Sao-Paulo 3 1 1
+    Flamengo  1 0 0
+    '''
+    maior_len = len(clubes[0].nome)
+    for clube in clubes:
+        if len(clube.nome) > maior_len:
+            maior_len = len(clube.nome)
+    print(f'TIME{(maior_len - 4) * ' '} P V  S')
+    for clube in clubes:
+        if clube.saldo >= 0:
+            print(f'{clube.nome}{(maior_len - len(clube.nome)) * ' '} {clube.pontuacao} {clube.wins}  {clube.saldo}')
+        else:
+            print(f'{clube.nome}{(maior_len - len(clube.nome)) * ' '} {clube.pontuacao} {clube.wins} {clube.saldo}')
+
+
 def le_arquivo(nome: str) -> list[str]:
     '''
     Lê o conteúdo do arquivo *nome* e devolve uma lista onde cada elemento
@@ -209,7 +305,6 @@ def le_arquivo(nome: str) -> list[str]:
         print(f'Erro na leitura do arquivo "{nome}": {e.errno} - {e.strerror}.');
         sys.exit(1)
 
-
 def main():
     if len(sys.argv) < 2:
         print('Nenhum nome de arquivo informado.')
@@ -222,10 +317,9 @@ def main():
     # TODO: solução da pergunta 1
     jogos_processados = processa_jogos(jogos)
     clubes = processa_clubes(jogos_processados)
-    # print(f'Número de clubes: {len(clubes)}')
-    print('Clubes:')
-    for clube in clubes:
-        print(f'  {clube.nome} - Jogos: {clube.jogos_totais}, Vitorias: {clube.wins}, Empates: {clube.draws}, Gols: {clube.gols_totais}, Jogos em casa: {clube.jogos_anf}, Vitorias em casa: {clube.wins_anf}, Gols em casa: {clube.gols_anf}, Gols sofridos: {clube.gols_tomados}, Saldo: {clube.saldo}')
+    pontuacao_clubes(clubes)
+    ordena_clubes(clubes)
+    mostra_classificacao(clubes)
     # TODO: solução da pergunta 2
     # TODO: solução da pergunta 3
 
