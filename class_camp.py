@@ -12,6 +12,7 @@ class Clube:
     jogos_anf: int
     wins_anf: int
     gols_anf: int
+    draws_anf: int
     gols_tomados: int
     saldo: int
     pontuacao: int
@@ -24,7 +25,7 @@ class Jogo:
     visit: str
     gols_visit: int
 
-def verifica_nome(nome: str, lst:list[Clube]) -> int:
+def verifica_nome(nome_alvo: str, lst:list[Clube], inicio: int) -> int:
     '''
     Determina o índice de um Clube de nome *nome* em *lst*.
     Retorna -1 caso o clube *nome* não estiver na lista.
@@ -41,18 +42,15 @@ def verifica_nome(nome: str, lst:list[Clube]) -> int:
     >>> verifica_nome('Corinthians', times)
     1
     '''
-    i = 0
-    idx = -1
-    found = False
-    while not found and i < len(lst):
-        if lst[i].nome == nome:
-            found = True
-            idx = i
-        else:
-            i += 1
+    # Caso base: se o índice inicial for maior ou igual ao tamanho da lista
+    # ou se a lista estiver vazia, retorna -1.  
+    if inicio >= len(lst) or len(lst) == 0:
+        idx = -1
+    elif lst[inicio].nome == nome_alvo:
+        idx = inicio
+    else:
+        idx = verifica_nome(nome_alvo, lst, inicio + 1)
     return idx
-
-
 def acha_espaco(s: str) -> list[int]:
     '''
     Devolve uma lista com os indices dos espaços de *s*
@@ -139,8 +137,8 @@ def processa_clubes(jogos: list[Jogo]) -> list[Clube]:
     clubes: list[Clube] = []
     
     for jogo in jogos:
-        idx_anf = verifica_nome(jogo.anf, clubes)
-        idx_visit = verifica_nome(jogo.visit, clubes)
+        idx_anf = verifica_nome(jogo.anf, clubes, 0)
+        idx_visit = verifica_nome(jogo.visit, clubes, 0)
         # se o clube anfitriao não estiver na lista
         if idx_anf == -1:
             tomados = jogo.gols_visit
@@ -152,6 +150,7 @@ def processa_clubes(jogos: list[Jogo]) -> list[Clube]:
                               gols_totais = jogo.gols_anf,
                               jogos_anf = 1,
                               wins_anf = 1 if jogo.gols_anf > jogo.gols_visit else 0,
+                              draws_anf = 1 if jogo.gols_anf == jogo.gols_visit else 0,
                               gols_anf = jogo.gols_anf,
                               gols_tomados = tomados,
                               saldo = gols_totais - tomados,
@@ -160,9 +159,13 @@ def processa_clubes(jogos: list[Jogo]) -> list[Clube]:
         else: # O clube anfitrião está na lista
             clube_anf = clubes[idx_anf]
             clube_anf.jogos_totais += 1
+            clube_anf.wins += 1 if jogo.gols_anf > jogo.gols_visit else 0
+            clube_anf.draws += 1 if jogo.gols_anf == jogo.gols_visit else 0
             clube_anf.gols_totais += jogo.gols_anf
             clube_anf.jogos_anf += 1
             clube_anf.wins_anf += (jogo.gols_anf > jogo.gols_visit)
+            clube_anf.draws_anf += (jogo.gols_anf == jogo.gols_visit)
+            clube_anf.gols_anf += jogo.gols_anf
             clube_anf.gols_tomados += jogo.gols_visit
             clube_anf.saldo = (clube_anf.gols_totais - clube_anf.gols_tomados)
         
@@ -177,6 +180,7 @@ def processa_clubes(jogos: list[Jogo]) -> list[Clube]:
                                 gols_totais = jogo.gols_visit,
                                 jogos_anf = 0,
                                 wins_anf = 0,
+                                draws_anf = 0,
                                 gols_anf = 0,
                                 gols_tomados = tomados,
                                 saldo = gols_totais - tomados,
@@ -239,26 +243,27 @@ def ordena_clubes(clubes: list[Clube]):
     >>> classificacao(clubes)
     '''
     for i in range(len(clubes) - 1):
-        if clubes[i].pontuacao < clubes[i + 1].pontuacao:
-            aux = clubes[i]
-            clubes[i] = clubes[i + 1]
-            clubes[i + 1] = aux
-        elif clubes[i].pontuacao == clubes[i+1].pontuacao:
-            if clubes[i].wins < clubes[i + 1].wins:
-                aux = clubes[i]
-                clubes[i] = clubes[i + 1]
-                clubes[i + 1] = aux
-            elif clubes[i].wins == clubes[i + 1].wins:
-                if clubes[i].saldo < clubes[i + 1].saldo:
-                    aux = clubes[i]
-                    clubes[i] = clubes[i + 1]
-                    clubes[i + 1] = aux
-                elif clubes[i].saldo == clubes[i + 1].saldo:
-                    # Fazer a troca por ordem alfabética
-                    if not em_ordem_alfabetica(clubes[i], clubes[i + 1]):
-                        aux = clubes[i]
-                        clubes[i] = clubes[i + 1]
-                        clubes[i + 1] = aux
+        for j in range(len(clubes) - 1):
+            if clubes[j].pontuacao < clubes[j + 1].pontuacao:
+                aux = clubes[j]
+                clubes[j] = clubes[j + 1]
+                clubes[j + 1] = aux
+            elif clubes[j].pontuacao == clubes[j+1].pontuacao:
+                if clubes[j].wins < clubes[j + 1].wins:
+                    aux = clubes[j]
+                    clubes[j] = clubes[j + 1]
+                    clubes[j + 1] = aux
+                elif clubes[j].wins == clubes[j + 1].wins:
+                    if clubes[j].saldo < clubes[j + 1].saldo:
+                        aux = clubes[j]
+                        clubes[j] = clubes[j + 1]
+                        clubes[j + 1] = aux
+                    elif clubes[j].saldo == clubes[j + 1].saldo:
+                        # Fazer a troca por ordem alfabética
+                        if not em_ordem_alfabetica(clubes[j], clubes[j + 1]):
+                            aux = clubes[j]
+                            clubes[j] = clubes[j + 1]
+                            clubes[j + 1] = aux
     
 def mostra_classificacao(clubes: list[Clube]):
     '''
@@ -350,7 +355,7 @@ def main():
         print('Muitos parâmetro. Informe apenas um nome de arquivo.')
         sys.exit(1)
     jogos = le_arquivo(sys.argv[1])
-    # TODO: solução da pergunta 1
+    # TODO: solução da pergunta 1 
     jogos_processados = processa_jogos(jogos)
     clubes = processa_clubes(jogos_processados)
     pontuacao_clubes(clubes)
