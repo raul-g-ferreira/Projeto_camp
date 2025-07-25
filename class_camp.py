@@ -288,6 +288,40 @@ def mostra_classificacao(clubes: list[Clube]):
             # print(f"{clube.nome}{' ' * (maior_len - len(clube.nome))} {clube.pontuacao} {clube.wins} {clube.saldo}")
             print(clube.nome + (' ' * (maior_len - len(clube.nome))) + ' ' + str(clube.pontuacao)+ ' ' + str(clube.wins)+ ' ' + str(clube.saldo))
 
+def max_gols_tomados(clubes: list[Clube]) -> int:
+    '''
+    Determina o maior número de gols sofridos por um clube.
+    Retorna o número de gols sofridos.
+    Exemplo:
+    >>> clubes = [Clube('Sao-Paulo', 1, 1, 0, 2, 1, 1, 2, 1, 0), Clube('Flamengo', 1, 0, 1, 1, 0, 0, 0, 1, 0)]
+    >>> mais_gols_tomados(clubes)
+    1
+    '''
+    max_tomados = clubes[0].gols_tomados
+    for clube in clubes:
+        if clube.gols_tomados > max_tomados:
+            max_tomados = clube.gols_tomados
+    return max_tomados
+
+def pior_defesa(clubes: list[Clube]):
+    '''
+    Imprime o(s) clube(s) com a pior defesa.
+    A pior defesa é o clube que tem o maior número de gols sofridos.
+    Retorna o nome do clube com a pior defesa.
+    Exemplo:
+    >>> clubes = [Clube('Sao-Paulo', 1, 1, 0, 2, 1, 1, 2, 1, 0), Clube('Flamengo', 1, 0, 1, 1, 0, 0, 0, 1, 0)]
+    >>> pior_defesa(clubes)
+    'Flamengo'
+    '''
+    tomados = max_gols_tomados(clubes)
+    pior_defesa: list = []
+    for clube in clubes:
+        if clube.gols_tomados == tomados:
+            pior_defesa.append(clube.nome)
+    print('O(s) times com a pior defesa é(são):')
+    for clube in pior_defesa:
+        print(clube)
+    
 
 def le_arquivo(nome: str) -> list[str]:
     '''
@@ -323,8 +357,9 @@ def main():
     ordena_clubes(clubes)
     mostra_classificacao(clubes)
     # TODO: solução da pergunta 2
+    
     # TODO: solução da pergunta 3
-
+    pior_defesa(clubes) #Precisa ser recursiva!!!!!!!!!!!!!!!!!!!
 
 if __name__ == '__main__':
     main()
