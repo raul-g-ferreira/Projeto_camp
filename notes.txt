@@ -34,3 +34,14 @@ Funções:
 faze func pontuacao 
     criar campo no tipo Clube e fixar em 0
         dps passar a func pra calcular a pontuacao
+
+
+
+
+
+perginta 2
+    func q calcula o melhor aproveitamento
+    e func que percorre a lista de Clube armazenando ios q tiverem aproveitamento == melkhor aproveitamento
+
+    aproveitamento = (quanto conseguiu) / (quanto tem)
+max_aproveitamento_anf() será recursiva
