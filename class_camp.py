@@ -304,10 +304,8 @@ def mostra_classificacao(clubes: list[Clube]):
     print("TIME " + (" " * (maior_len - 4)) + "P V  S")
     for clube in clubes:
         if clube.saldo >= 0:
-            # print(f"{clube.nome}{' ' * (maior_len - len(clube.nome))} {clube.pontuacao} {clube.wins}  {clube.saldo}")
             print(clube.nome + (' '* (maior_len - len(clube.nome))) + ' ' + str(clube.pontuacao)+ ' ' + str(clube.wins)+ '  ' + str(clube.saldo))
         else:
-            # print(f"{clube.nome}{' ' * (maior_len - len(clube.nome))} {clube.pontuacao} {clube.wins} {clube.saldo}")
             print(clube.nome + (' ' * (maior_len - len(clube.nome))) + ' ' + str(clube.pontuacao)+ ' ' + str(clube.wins)+ ' ' + str(clube.saldo))
 
 def min_gols_tomados(clubes: list[Clube]) -> int:
